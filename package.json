@@ -17,5 +17,8 @@
     "url": "https://github.com/Xilinx96/project/issues"
   },
   "homepage": "https://github.com/Xilinx96/project#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  }
 }
