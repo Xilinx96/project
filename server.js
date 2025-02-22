@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 // Configure CORS (update for production)
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? ['https://your-frontend-domain.com'] : '*',
+  origin: process.env.NODE_ENV === 'production' ? ['https://project-209p.onrender.com/'] : '*',
   methods: ['POST', 'GET'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
