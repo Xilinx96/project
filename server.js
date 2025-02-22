@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 // Configure CORS (update for production)
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? ['https://project-209p.onrender.com/'] : '*',
+  origin: process.env.NODE_ENV === 'production' ? ['https://project-209p.onrender.com'] : '*',
   methods: ['POST', 'GET'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
@@ -42,6 +42,10 @@ app.post('/api/ocr', async (req, res) => {
     const { image } = req.body;
     if (!image) {
       return res.status(400).json({ error: 'Missing image data' });
+    }
+    
+    if (!image || !image.startsWith('data:image/')) {
+      return res.status(400).json({ error: 'Invalid or missing base64 image data' });
     }
 
     const imageParts = [{
