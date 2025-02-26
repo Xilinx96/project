@@ -189,10 +189,13 @@
             darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
         });
 
-        let mediaStream;
+        let mediaStream = null;
 
         // Initialize webcam
         async function initializeCamera() {
+            if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            }
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = mediaStream;
@@ -214,14 +217,22 @@
             capturedImage.src = canvas.toDataURL('image/png');
             capturedImage.style.display = 'block';
 
-            const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+            const base64Image = canvas.toDataURL('image/jpeg', 0.8);
 
             try {
-                const response = await fetch('http://localhost:3000/api/ocr', {
+                const API_URL = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3000/api/ocr'
+                : 'https://project-209p.onrender.com/api/ocr';
+
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ image: base64Image }),
                 });
+                if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'API request failed');
+                }
 
                 const data = await response.json();
                 extractedText.textContent = data.error ? `Error: ${data.error}` : data.text || 'No text detected.';

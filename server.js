@@ -12,13 +12,16 @@ if (!process.env.GEMINI_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure CORS (update for production)
+// Updated CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? ['https://project-209p.onrender.com/api/ocr'] : '*',
-  methods: ['POST', 'GET'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-frontend-domain.com'] // Replace with your frontend domain
+    : '*', // Allow all origins in development
+  credentials: true, // Allow cookies/authentication headers
+  methods: ['POST', 'GET', 'OPTIONS'], // Allow necessary methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Allow necessary headers
 };
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Apply CORS configuration
 app.use(express.json({ limit: '10mb' }));
 
 // Initialize Gemini AI model
@@ -43,7 +46,7 @@ app.post('/api/ocr', async (req, res) => {
     if (!image) {
       return res.status(400).json({ error: 'Missing image data' });
     }
-    
+
     if (!image || !image.startsWith('data:image/')) {
       return res.status(400).json({ error: 'Invalid or missing base64 image data' });
     }
