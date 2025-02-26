@@ -75,7 +75,7 @@
         const darkModeToggle = document.getElementById('darkModeToggle');
 
         let mediaStream = null;
-        const API_URL = "https://project-209p.onrender.com/api/ocr";
+        const API_URL = "https://project-209p.onrender.com/api/ocr"; // 🔧 Update with your Render URL
 
         async function initializeCamera() {
             if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
@@ -100,12 +100,16 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: capturedImage.src })
+                    body: JSON.stringify({ 
+                        image: canvas.toDataURL('image/png').split(',')[1] // 🔧 Send only base64 data
+                    })
                 });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                extractedText.textContent = data.text || 'No text detected.';
+                extractedText.textContent = data.text || data.error || 'No text detected.';
             } catch (error) {
-                extractedText.textContent = 'Error extracting text.';
+                console.error('Fetch error:', error);
+                extractedText.textContent = 'Error: ' + error.message;
             }
             captureBtn.style.display = 'none';
             retakeBtn.style.display = 'inline-block';

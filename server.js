@@ -12,8 +12,12 @@ if (!process.env.GEMINI_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Updated CORS Configuration
-const allowedOrigins = ['https://goglelens.vercel.app', 'http://localhost:3000']; // Remove trailing slashes
+// CORS Configuration
+const allowedOrigins = [
+  'https://goglelens.onrender.com/', // 🔧 Update with your frontend URL
+  'http://localhost:5500',         // For local development
+  'http://127.0.0.1:5500'          // Alternative localhost
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -35,7 +39,22 @@ app.use(express.json({ limit: '10mb' }));
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-// ✅ Health check endpoint
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: "Google Lens OCR API",
+    endpoints: {
+      ocr: {
+        path: "/api/ocr",
+        method: "POST",
+        description: "Accepts base64 image data"
+      },
+      health: "/health"
+    }
+  });
+});
+
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -44,7 +63,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ✅ OCR Endpoint
+// OCR Endpoint
 app.post('/api/ocr', async (req, res) => {
   try {
     const { image } = req.body;
@@ -62,26 +81,32 @@ app.post('/api/ocr', async (req, res) => {
     const textPrompt = "Extract all readable text from the given image. If no text is found, return 'NO_TEXT_DETECTED'.";
 
     const result = await model.generateContent([textPrompt, ...imageParts]);
-    const extractedText = await result.response.text();
+    const extractedText = (await result.response.text())
+      .replace(/NO_TEXT_DETECTED/gi, '') // Clean response
+      .trim();
 
-    if (!extractedText || extractedText.includes('NO_TEXT_DETECTED')) {
+    if (!extractedText) {
       return res.status(404).json({ error: 'No text found' });
     }
 
     res.status(200).json({ success: true, text: extractedText });
 
   } catch (error) {
-    console.error(`🚨 API Error: ${error.message}`, { timestamp: new Date().toISOString() });
-    res.status(500).json({ error: 'Server error', details: error.message });
+    console.error(`🚨 API Error: ${error.stack}`);
+    res.status(500).json({ 
+      error: 'Server error',
+      message: error.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
   }
 });
 
-// ✅ Catch-all for unknown routes
+// Catch-all for unknown routes
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found', availableEndpoints: ['/api/ocr', '/health'] });
 });
 
-// ✅ Start server
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} (${process.env.NODE_ENV || 'development'})`);
 });
