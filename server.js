@@ -12,14 +12,16 @@ if (!process.env.GEMINI_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS Configuration
-const allowedOrigins = ['https://goglelens.vercel.app/', 'http://localhost:3000']; // Add your Vercel frontend URL
+// ✅ Updated CORS Configuration
+const allowedOrigins = ['https://goglelens.vercel.app', 'http://localhost:3000']; // Remove trailing slashes
+
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.warn(`⚠️ CORS blocked request from: ${origin}`);
+      callback(new Error('CORS not allowed for this origin'));
     }
   },
   credentials: true,
@@ -33,7 +35,7 @@ app.use(express.json({ limit: '10mb' }));
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-// Health check endpoint
+// ✅ Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -42,7 +44,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// OCR Endpoint
+// ✅ OCR Endpoint
 app.post('/api/ocr', async (req, res) => {
   try {
     const { image } = req.body;
@@ -74,12 +76,12 @@ app.post('/api/ocr', async (req, res) => {
   }
 });
 
-// Catch-all for unknown routes
+// ✅ Catch-all for unknown routes
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found', availableEndpoints: ['/api/ocr', '/health'] });
 });
 
-// Start server
+// ✅ Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} (${process.env.NODE_ENV || 'development'})`);
 });
