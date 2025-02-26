@@ -12,30 +12,33 @@ if (!process.env.GEMINI_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Updated CORS configuration
+// CORS Configuration
+const allowedOrigins = ['https://goglelens.vercel.app/', 'http://localhost:3000']; // Add your Vercel frontend URL
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.com'] // Replace with your frontend domain
-    : '*', // Allow all origins in development
-  credentials: true, // Allow cookies/authentication headers
-  methods: ['POST', 'GET', 'OPTIONS'], // Allow necessary methods
-  allowedHeaders: ['Content-Type', 'Authorization'] // Allow necessary headers
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['POST', 'GET', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
-app.use(cors(corsOptions)); // Apply CORS configuration
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
 // Initialize Gemini AI model
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ 
-  model: 'gemini-1.5-flash'
-});
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -43,19 +46,15 @@ app.get('/health', (req, res) => {
 app.post('/api/ocr', async (req, res) => {
   try {
     const { image } = req.body;
-    if (!image) {
-      return res.status(400).json({ error: 'Missing image data' });
-    }
-
     if (!image || !image.startsWith('data:image/')) {
       return res.status(400).json({ error: 'Invalid or missing base64 image data' });
     }
 
     const imageParts = [{
       inlineData: {
-        data: image, // Expecting base64 encoded image
-        mimeType: 'image/png' // Adjust if different
-      }
+        data: image,
+        mimeType: 'image/png',
+      },
     }];
 
     const textPrompt = "Extract all readable text from the given image. If no text is found, return 'NO_TEXT_DETECTED'.";

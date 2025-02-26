@@ -1,270 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gogle Lens</title>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-        <style>
-            /* Dark mode variables */
-            :root {
-                --bg-color: #ffffff;
-                --text-color: #333333;
-                --button-bg: #4CAF50;
-                --button-hover: #45a049;
-            }
-
-            /* Dark mode theme */
-            .dark-mode {
-                --bg-color: #1a1a1a;
-                --text-color: #ffffff;
-                --button-bg: #2ecc71;
-                --button-hover: #27ae60;
-            }
-
-            body {
-                font-family: 'Poppins', sans-serif;
-                margin: 0;
-                padding: 20px;
-                background-color: var(--bg-color);
-                color: var(--text-color);
-                transition: all 0.3s ease-in-out;
-                text-align: center;
-            }
-
-            /* Header with logo */
-            .header {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 15px;
-                margin-bottom: 10px;
-            }
-
-            .header img {
-                width: 50px; /* Adjust size of the logo */
-                height: 50px;
-                border-radius: 50%;
-            }
-
-            .description {
-                font-size: 16px;
-                color: var(--text-color);
-                margin-bottom: 30px;
-                opacity: 0.8;
-            }
-
-            .container {
-                display: flex;
-                gap: 30px;
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-
-            .camera-column, .text-column {
-                flex: 1;
-            }
-
-            video {
-                width: 100%;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
-
-            button {
-                background-color: var(--button-bg);
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 25px;
-                cursor: pointer;
-                font-family: 'Poppins', sans-serif;
-                font-weight: 500;
-                transition: all 0.2s ease;
-                margin: 10px;
-            }
-
-            button:hover {
-                background-color: var(--button-hover);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            }
-
-            button:active {
-                transform: scale(0.95);
-            }
-
-            #capturedImage {
-                width: 100%;
-                border-radius: 10px;
-                display: none;
-            }
-
-            .search-box {
-                margin-top: 20px;
-                display: flex;
-                gap: 10px;
-            }
-
-            #searchText {
-                flex: 1;
-                padding: 12px;
-                border: 2px solid #ddd;
-                border-radius: 25px;
-                font-family: 'Poppins', sans-serif;
-            }
-
-            #extractedText {
-                background: rgba(0,0,0,0.05);
-                padding: 20px;
-                border-radius: 10px;
-                min-height: 200px;
-                white-space: pre-wrap;
-            }
-
-            /* Dark mode toggle button */
-            .dark-mode-toggle {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: none;
-                border: none;
-                font-size: 24px;
-                cursor: pointer;
-                padding: 10px;
-                z-index: 1000;
-            }
-
-        </style>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Lens Clone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --button-bg: #4CAF50;
+            --button-hover: #45a049;
+        }
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --button-bg: #2ecc71;
+            --button-hover: #27ae60;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease-in-out;
+            text-align: center;
+        }
+        .container { display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .camera-column, .text-column { flex: 1; }
+        video, img { width: 100%; border-radius: 10px; }
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background-color: var(--button-hover); }
+        .search-box { margin-top: 20px; display: flex; gap: 10px; }
+        #searchText { flex: 1; padding: 12px; border-radius: 25px; }
+        .dark-mode-toggle {
+            position: fixed; top: 20px; right: 20px; background: none; font-size: 24px; cursor: pointer;
+        }
+    </style>
+</head>
 <body>
-    <!-- Dark Mode Toggle Button -->
     <button class="dark-mode-toggle" id="darkModeToggle">🌙</button>
-
-    <!-- Header with Logo and Title -->
-    <div class="header">
-        <img src="logo.png" alt="Logo"> 
-        <h1>Gogle Lens</h1>
-    </div>
-
-    <!-- Website Description -->
-    <p class="description">Capture images, extract text, and search instantly on Google.</p>
-
+    <h1>Google Lens Clone</h1>
+    <p>Capture images, extract text, and search instantly on Google.</p>
     <div class="container">
-        <!-- Left Column - Camera -->
         <div class="camera-column">
             <video id="webcam" autoplay></video>
-            <img id="capturedImage" alt="Captured Photo" style="display: none;">
-            <div style="text-align: center;">
-                <button id="capture">Capture Photo</button>
-                <button id="retake" style="display: none;">Retake Photo</button>
-            </div>
+            <img id="capturedImage" style="display: none;">
+            <button id="capture">Capture</button>
+            <button id="retake" style="display: none;">Retake</button>
         </div>
-
-        <!-- Right Column - Text -->
         <div class="text-column">
-            <h2 style="margin-top: 0;">Extracted Text</h2>
+            <h2>Extracted Text</h2>
             <pre id="extractedText">Your extracted text will appear here...</pre>
             <div class="search-box">
                 <input type="text" id="searchText" placeholder="Selected text will appear here">
-                <button id="search">Search on Google</button>
+                <button id="search">Search</button>
             </div>
         </div>
     </div>
-
     <script>
         const video = document.getElementById('webcam');
-        const captureButton = document.getElementById('capture');
-        const retakeButton = document.getElementById('retake');
+        const captureBtn = document.getElementById('capture');
+        const retakeBtn = document.getElementById('retake');
         const capturedImage = document.getElementById('capturedImage');
         const extractedText = document.getElementById('extractedText');
         const searchText = document.getElementById('searchText');
-        const searchButton = document.getElementById('search');
-
-        // Dark mode functionality
+        const searchBtn = document.getElementById('search');
         const darkModeToggle = document.getElementById('darkModeToggle');
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
-        });
 
         let mediaStream = null;
+        const API_URL = "https://project-209p.onrender.com/api/ocr";
 
-        // Initialize webcam
         async function initializeCamera() {
-            if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
-            }
+            if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = mediaStream;
-            } catch (err) {
-                alert("Could not access webcam. Please allow camera permissions.");
-            }
+            } catch (err) { alert("Camera permission denied."); }
         }
 
-        captureButton.addEventListener('click', async () => {
+        captureBtn.addEventListener('click', async () => {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
+            canvas.getContext('2d').drawImage(video, 0, 0);
 
             mediaStream.getTracks().forEach(track => track.stop());
             video.style.display = 'none';
-
             capturedImage.src = canvas.toDataURL('image/png');
             capturedImage.style.display = 'block';
 
-            const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-
             try {
-                const API_URL = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3000/api/ocr'
-                : 'https://project-209p.onrender.com/api/ocr';
-
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: base64Image }),
+                    body: JSON.stringify({ image: capturedImage.src })
                 });
-                if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'API request failed');
-                }
-
                 const data = await response.json();
-                extractedText.textContent = data.error ? `Error: ${data.error}` : data.text || 'No text detected.';
+                extractedText.textContent = data.text || 'No text detected.';
             } catch (error) {
-                console.error('Error:', error);
-                extractedText.textContent = 'Error extracting text. Please try again.';
+                extractedText.textContent = 'Error extracting text.';
             }
-
-            captureButton.style.display = 'none';
-            retakeButton.style.display = 'inline-block';
+            captureBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-block';
         });
 
-        retakeButton.addEventListener('click', () => {
+        retakeBtn.addEventListener('click', () => {
             initializeCamera();
             capturedImage.style.display = 'none';
             video.style.display = 'block';
             extractedText.textContent = 'Your extracted text will appear here...';
             searchText.value = '';
-            captureButton.style.display = 'inline-block';
-            retakeButton.style.display = 'none';
+            captureBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
         });
 
-        searchButton.addEventListener('click', () => {
+        searchBtn.addEventListener('click', () => {
             const query = searchText.value.trim();
             if (query) window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-            else alert("Please select some text to search!");
+            else alert("Select text to search!");
         });
 
         extractedText.addEventListener('mouseup', () => {
             const selection = window.getSelection().toString().trim();
             if (selection) searchText.value = selection;
         });
+
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        });
+
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.textContent = '☀️';
+        }
 
         initializeCamera();
     </script>
